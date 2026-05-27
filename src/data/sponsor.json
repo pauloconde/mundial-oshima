@@ -43,8 +43,8 @@
   "showBanner": true,
   "bannerDuration": 4,
   "banner1url": "/territory.webp",
-  "banner2url": "",
-  "banner3url": "",
+  "banner2url": "/raptor.webp",
+  "banner3url": "/expedition.webp",
   "banner4url": "",
   "banner5url": ""
 }
