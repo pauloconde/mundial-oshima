@@ -9,21 +9,46 @@ const __dirname = path.dirname(__filename);
 const PUBLIC_DIR = path.resolve(__dirname, '../public');
 const SOURCE_ICON = path.join(PUBLIC_DIR, 'logo-splash.svg');
 
-// Color de fondo exacto para los iconos maskables (Android Splash)
-const APP_BACKGROUND_COLOR = '#003874'; 
+// Ruta hacia el JSON de datos que lee tu astro.config.mjs
+const SPONSOR_JSON_PATH = path.resolve(__dirname, '../src/data/sponsor.json');
 
-const ICONS = [
-  { name: 'icon-192.png', size: 192, maskable: false },
-  { name: 'icon-192-maskable.png', size: 192, maskable: true },
-  { name: 'icon-512.png', size: 512, maskable: false },
-  { name: 'icon-512-maskable.png', size: 512, maskable: true },
-  { name: 'apple-touch-icon.png', size: 180, maskable: false, background: APP_BACKGROUND_COLOR } // 👈 Con la llave corregida
-];
+// Color de respaldo por si el JSON falla de alguna manera
+const DEFAULT_FALLBACK_COLOR = '#ffffff';
+
+async function getAppBackgroundColor() {
+  try {
+    // Leemos el archivo tal como lo hace Astro internamente
+    const rawData = await fs.readFile(SPONSOR_JSON_PATH, 'utf-8');
+    const sponsorInfo = JSON.parse(rawData);
+    
+    if (sponsorInfo?.colors?.appBg) {
+      console.log(`🎨 Color detectado desde sponsor.json: ${sponsorInfo.colors.appBg}`);
+      return sponsorInfo.colors.appBg;
+    }
+    
+    console.warn(`⚠️ No se encontró "colors.appBg" en el JSON. Usando fallback: ${DEFAULT_FALLBACK_COLOR}`);
+    return DEFAULT_FALLBACK_COLOR;
+  } catch (error) {
+    console.warn(`⚠️ No se pudo leer sponsor.json (${error.message}). Usando fallback: ${DEFAULT_FALLBACK_COLOR}`);
+    return DEFAULT_FALLBACK_COLOR;
+  }
+}
 
 async function generateIcons() {
   try {
     // Comprobar si existe el SVG fuente
     await fs.access(SOURCE_ICON);
+    
+    // Obtenemos dinámicamente el color configurado
+    const APP_BACKGROUND_COLOR = await getAppBackgroundColor();
+
+    const ICONS = [
+      { name: 'icon-192.png', size: 192, maskable: false },
+      { name: 'icon-192-maskable.png', size: 192, maskable: true },
+      { name: 'icon-512.png', size: 512, maskable: false },
+      { name: 'icon-512-maskable.png', size: 512, maskable: true },
+      { name: 'apple-touch-icon.png', size: 180, maskable: false, background: APP_BACKGROUND_COLOR }
+    ];
     
     console.log('Generando iconos PWA optimizados desde logo-splash.svg...\n');
 
@@ -41,13 +66,13 @@ async function generateIcons() {
           .resize(icon.size, icon.size, {
             fit: 'contain',
             kernel: sharp.kernel.lanczos3,
-            background: targetBackground // Aplica el color correcto al redimensionar (evita el fondo negro por defecto)
+            background: targetBackground
           })
-          .flatten({ background: targetBackground }) // Asegura el acoplado plano final sin alphas
+          .flatten({ background: targetBackground })
           .png({ 
             quality: 100, 
             compressionLevel: 9, 
-            palette: true // Elimina perfiles de color extraños para evitar variaciones cromáticas en Android
+            palette: true 
           });
       } else {
         // CONFIGURACIÓN PARA ICONOS TRANSPARENTES (Any)
@@ -63,8 +88,7 @@ async function generateIcons() {
       console.log(`✅ Creado: ${icon.name} (${icon.size}x${icon.size})${targetBackground ? ` [Fondo: ${targetBackground}]` : ' [Transparente]'}`);
     }
 
-    console.log('\n¡Todos los iconos generados correctamente!');
-    console.log('Recuerda asegurarte de que astro.config.mjs hace referencia a estos archivos.');
+    console.log('\n¡Todos los iconos generados correctamente con el color sincronizado!');
   } catch (error) {
     console.error('Error generando los iconos:', error);
     if (error.code === 'ENOENT') {
