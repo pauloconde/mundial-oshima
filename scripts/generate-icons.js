@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const PUBLIC_DIR = path.resolve(__dirname, '../public');
-const SOURCE_ICON = path.join(PUBLIC_DIR, 'favicon.svg');
+const SOURCE_ICON = path.join(PUBLIC_DIR, 'logo-splash.svg');
 
 const ICONS = [
   { name: 'icon-192.png', size: 192, maskable: false },
