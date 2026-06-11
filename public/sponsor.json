@@ -23,11 +23,6 @@
   "quinielaEndDate": "2026-06-11T23:59:00Z",
   "quinielaPrizeImage": "/premios-oshima.webp",
   "includeThirdPlacePrediction": false,
-  "quinielaRequireReceipt": false,
-  "quinielaPredictFinalScore": false,
-  "FixedMatchEnabled": false,
-  "FixedMatchTeamA": "",
-  "FixedMatchTeamB": "",
   "theme": "dark",
   "colors": {
     "appBg": "#112f63",
